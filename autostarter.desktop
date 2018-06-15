@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Exec=/home/mario/Images/Wallpapers/changer.sh
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name[fr_FR]=autostarter
+Name=wallpaper changer
+Comment[fr_FR]=
+Comment=
