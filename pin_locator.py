@@ -44,16 +44,19 @@ cities_data = [
         {
           'name' : 'Uberlândia',
           'fuso' : -3,
+          'tz' : "Brazil/East",
           'location_pixels' : [517, 541]
         },
         {
           'name' : 'Lyon',
           'fuso' : 2,
+          'tz' : "Europe/Paris",
           'location_pixels' : [246, 778]
         },
         {
           'name' : 'Singapura',
           'fuso' : 8,
+          'tz' : "Asia/Singapore",
           'location_pixels' : [440, 1217]
         }
 ]
@@ -102,6 +105,7 @@ from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
 from datetime import datetime
+import pytz
 
 img = Image.open("/home/italo/Images/Wallpapers/world_pinned.jpg")
 draw = ImageDraw.Draw(img)
@@ -111,7 +115,8 @@ for city in cities_data:
     ## Determinando o retangulo onde estarão os marcadores
     x = city['location_pixels'][0]
     y = city['location_pixels'][1]
-    text = str(datetime.now(tz=city['fuso']).hour) + " hrs"
+    tz = pytz.timezone(city['tz'])
+    text = str(datetime.now(tz=tz).hour) + " hrs"
     draw.text((y, x), text,(255,0,0),font=font)
 
 #plt.imshow(img)
