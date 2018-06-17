@@ -8,10 +8,10 @@ from scipy import misc # Opening and clossing
 def save_image(input_image,name=None,extension='.png',folder=None):
     """
     Save a image in a determined format and folder
-    """    
+    """
     complete_file_name = name + extension
     if not folder is None:
-        complete_file_name = folder + complete_file_name   
+        complete_file_name = folder + complete_file_name
     misc.imsave(complete_file_name, input_image) # uses the Image module (PIL)
 
 def read_image(name,extension='.png',folder=None):
@@ -23,35 +23,35 @@ def read_image(name,extension='.png',folder=None):
     >>> face_from_raw = np.fromfile('face.raw', dtype=np.uint8)
     >>> face_from_raw.shape = (768, 1024, 3)
     Need to know the shape and dtype of the image (how to separate data bytes).
-    
+
     For large data, use np.memmap for memory mapping:
     >>> face_memmap = np.memmap('face.raw', dtype=np.uint8, shape=(768, 1024, 3))
     (data are read from the file, and not loaded into memory)
-   
+
     Working on a list of image files
     >> from glob import glob
     >> filelist = glob('random*.png')
     """
     complete_file_name = name + extension
     if not folder is None:
-       complete_file_name = folder + complete_file_name   
-    
+       complete_file_name = folder + complete_file_name
+
     output_image = misc.imread(complete_file_name)
     return output_image
- 
- 
+
+
 cities_data = [
-        { 
+        {
           'name' : 'Uberlândia',
           'fuso' : -3,
           'location_pixels' : [517, 541]
         },
-        { 
+        {
           'name' : 'Lyon',
           'fuso' : 2,
           'location_pixels' : [246, 778]
         },
-        { 
+        {
           'name' : 'Singapura',
           'fuso' : 8,
           'location_pixels' : [440, 1217]
@@ -79,13 +79,13 @@ for city in cities_data:
     ## Determinando o retangulo onde estarão os marcadores
     x = city['location_pixels'][0]
     y = city['location_pixels'][1]
-    
+
     x_start = x - pin_image.shape[0]
     y_start = y - int(pin_image.shape[1]/2)
-    
+
     x_end = x_start + pin_image.shape[0]
     y_end = y_start + pin_image.shape[1]
-    
+
     ## colocando o marcador
     piece_of_world = world_image[x_start:x_end,y_start:y_end] # seleciona uma peça
     piece_of_world[pin_image_mask] = pin_image[pin_image_mask] # coloca o marcador nela
@@ -100,7 +100,7 @@ save_image(world_image, '/home/italo/Images/Wallpapers/world_pinned', '.jpg')
 ## adicionando texto
 from PIL import Image
 from PIL import ImageFont
-from PIL import ImageDraw 
+from PIL import ImageDraw
 from datetime import datetime
 
 img = Image.open("/home/italo/Images/Wallpapers/world_pinned.jpg")
@@ -111,11 +111,8 @@ for city in cities_data:
     ## Determinando o retangulo onde estarão os marcadores
     x = city['location_pixels'][0]
     y = city['location_pixels'][1]
-    text = str(datetime.utcnow().hour + city['fuso']) + " hrs"
+    text = str(datetime.now(tz=city['fuso']).hour) + " hrs"
     draw.text((y, x), text,(255,0,0),font=font)
 
 #plt.imshow(img)
 img.save('/home/italo/Images/Wallpapers/world_time.jpg')
-
-
-
