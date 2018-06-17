@@ -51,7 +51,7 @@ cities_data = [
           'name' : 'Lyon',
           'fuso' : 2,
           'tz' : "Europe/Paris",
-          'location_pixels' : [246, 778]
+          'location_pixels' : [245, 769]
         },
         {
           'name' : 'Singapura',
