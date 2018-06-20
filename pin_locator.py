@@ -60,7 +60,6 @@ cities_data = [
           'location_pixels' : [440, 1217]
         }
 ]
-
 ## Abrindo as imagens
 world_image = read_image('/home/italo/Images/Wallpapers/world','.jpg')
 #world_image = read_image('brasil_test_image','.jpg')
@@ -110,7 +109,7 @@ import pytz
 img = Image.open("/home/italo/Images/Wallpapers/world_pinned.jpg")
 draw = ImageDraw.Draw(img)
 # font = ImageFont.truetype(<font-file>, <font-size>)
-font = ImageFont.truetype("/home/italo/Images/Wallpapers/pin_locator_files/micross.ttf", 20)
+font = ImageFont.truetype("/home/italo/Images/Wallpapers/pin_locator_files/micross.ttf", 12)
 for city in cities_data:
     ## Determinando o retangulo onde estarão os marcadores
     x = city['location_pixels'][0]
