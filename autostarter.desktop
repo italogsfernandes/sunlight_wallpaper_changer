@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Exec=/home/mario/Images/Wallpapers/changer.sh
+Exec=sleep 20; python /home/italo/Images/Wallpapers/py_wallpaper_changer.py
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
