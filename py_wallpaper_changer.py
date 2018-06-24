@@ -19,7 +19,8 @@ wallpapers_folder = '/home/italo/Images/Wallpapers/'
 font_name = 'pin_locator_files/micross.ttf'
 
 if os.name == 'nt':
-    wallpapers_folder = '/D/Users/italo/Images/Wallpapers/'
+	print("Running on windows system")
+    wallpapers_folder = 'D:/Users/italo/Pictures/Wallpapers/'
     wallpapers_folder = wallpapers_folder.replace('/', '\\')
     font_name = font_name.replace('/', '\\')
 
