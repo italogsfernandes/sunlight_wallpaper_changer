@@ -9,6 +9,8 @@ from PIL import ImageFont # Adding text
 from PIL import ImageDraw # Adding text
 import pytz # Adding timezone text
 import ctypes # Altering windows dlls
+from scipy import misc # Opening and clossing
+import numpy as np
 
 header_msg = '*'*50 + """
 py wallpaper changer
@@ -34,6 +36,7 @@ cities_data = [
           'fuso' : -3,
           'tz' : "Brazil/East",
           'location_pixels' : [517, 541],
+          'tz_location_pixels' : [548, 552],
           'active': True
         },
         {
@@ -41,6 +44,7 @@ cities_data = [
           'fuso' : 2,
           'tz' : "Europe/Paris",
           'location_pixels' : [245, 769],
+          'tz_location_pixels' : [262, 770],
           'active': True
         },
         {
@@ -48,6 +52,7 @@ cities_data = [
           'fuso' : 8,
           'tz' : "Asia/Singapore",
           'location_pixels' : [440, 1217],
+          'tz_location_pixels' : [440, 1217],
           'active': True
         }
 ]
@@ -71,7 +76,8 @@ def image_download_routine():
     while errors_count < 30:
         if(wget_pic()):
             print("Image downloaded with success.")
-            #add_pins()
+            print("Adding circles in the cities locations.")
+            add_circles()
             print("Adding hours next to cities.")
             add_hours()
             print("Renaming file.")
@@ -84,6 +90,31 @@ def image_download_routine():
             print("Waiting 10s to a new try...")
             sleep(10)
 
+def add_circles(radius_px=6, width_px=1):
+	world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
+	color_background = np.zeros((radius_px*2,radius_px*2,3), dtype=world_image.dtype)
+	color_background[:,:,0] = 255
+	circle_X, circle_Y = np.ogrid[0:radius_px*2, 0:radius_px*2]
+	circle_out_mask = (circle_X - radius_px) ** 2 + (circle_Y - radius_px) ** 2 < radius_px**2
+	circle_in_mask = (circle_X - radius_px) ** 2 + (circle_Y - radius_px) ** 2 > (radius_px-width_px)**2
+	circle_mask = circle_in_mask * circle_out_mask
+
+	for city in cities_data:
+	    ## Determinando o retangulo onde estarão os marcadores
+	    x = city['location_pixels'][0]
+	    y = city['location_pixels'][1]
+	    x_start = x - radius_px
+	    y_start = y - radius_px
+	    x_end = x_start + radius_px*2
+	    y_end = y_start + radius_px*2
+
+	    ## colocando o marcador
+	    piece_of_world = world_image[x_start:x_end,y_start:y_end] # seleciona uma peça
+	    piece_of_world[circle_mask] = color_background[circle_mask] # coloca o marcador nela
+	    world_image[x_start:x_end,y_start:y_end] = piece_of_world # devolve para o todo
+
+	misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+
 def add_hours(font_size=18):
     img = Image.open(wallpapers_folder+dowloaded_pic_name)
     draw = ImageDraw.Draw(img)
@@ -92,8 +123,8 @@ def add_hours(font_size=18):
     for city in cities_data:
         if city['active']:
             ## Determinando o retangulo onde estarão os marcadores
-            x = city['location_pixels'][0]
-            y = city['location_pixels'][1]
+            x = city['tz_location_pixels'][0]
+            y = city['tz_location_pixels'][1]
             tz = pytz.timezone(city['tz'])
             text = str(datetime.now(tz=tz).hour) + " hrs"
             draw.text((y, x), text,(255,0,0),font=font)
