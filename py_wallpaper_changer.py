@@ -8,6 +8,7 @@ from PIL import Image # Adding text
 from PIL import ImageFont # Adding text
 from PIL import ImageDraw # Adding text
 import pytz # Adding timezone text
+import ctypes # Altering windows dlls
 
 header_msg = '*'*50 + """
 py wallpaper changer
@@ -19,7 +20,7 @@ wallpapers_folder = '/home/italo/Images/Wallpapers/'
 font_name = 'pin_locator_files/micross.ttf'
 
 if os.name == 'nt':
-	print("Running on windows system")
+    print("Running on windows system")
     wallpapers_folder = 'D:/Users/italo/Pictures/Wallpapers/'
     wallpapers_folder = wallpapers_folder.replace('/', '\\')
     font_name = font_name.replace('/', '\\')
@@ -83,7 +84,7 @@ def image_download_routine():
             print("Waiting 10s to a new try...")
             sleep(10)
 
-def add_hours(font_size=16):
+def add_hours(font_size=18):
     img = Image.open(wallpapers_folder+dowloaded_pic_name)
     draw = ImageDraw.Draw(img)
     # font = ImageFont.truetype(<font-file>, <font-size>)
@@ -101,7 +102,10 @@ def add_hours(font_size=16):
     img.save(wallpapers_folder+dowloaded_pic_name)
 
 def commit_changes():
+    os.remove(wallpapers_folder+wallpaper_pic_name)
     os.rename(wallpapers_folder+dowloaded_pic_name, wallpapers_folder+wallpaper_pic_name)
+    if os.name == 'nt':
+        ctypes.windll.user32.SystemParametersInfoW(20, 0, wallpapers_folder+wallpaper_pic_name, 3)
 
 def main_loop():
     minute_now = datetime.now().second
