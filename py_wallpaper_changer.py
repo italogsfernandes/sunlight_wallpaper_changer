@@ -3,7 +3,7 @@
 import os
 import requests # Download
 from time import sleep # time sleep during execution
-from datetime import datetime # sincronizando
+from datetime import datetime, timedelta # sincronizando
 from PIL import Image # Adding text
 from PIL import ImageFont # Adding text
 from PIL import ImageDraw # Adding text
@@ -16,15 +16,23 @@ header_msg = '*'*50 + """
 py wallpaper changer
 Developed by: italogsfernandes.github.io
 """ +'*'*50
-pic_url  = "http://www.opentopia.com/images/cams/world_sunlight_map_rectangular.jpg"
+#pic_url  = "http://www.opentopia.com/images/cams/world_sunlight_map_rectangular.jpg"
+#pic_url  = "https://static.die.net/earth/rectangular/1600.jpg"
+pic_url  = "https://static.die.net/earth/mercator/1600.jpg"
+qnt_max_de_erros = 30 
+tempo_espera_entre_erros = 10 # segundos
+
+horarios_para_sincronizar = [8,38]
 
 wallpapers_folder = '/home/italo/Images/Wallpapers/'
+log_folder = 'log/'
 font_name = 'pin_locator_files/micross.ttf'
 
 if os.name == 'nt':
     print("Running on windows system")
     wallpapers_folder = 'D:/Users/italo/Pictures/Wallpapers/'
     wallpapers_folder = wallpapers_folder.replace('/', '\\')
+    log_folder = log_folder.replace('/', '\\')
     font_name = font_name.replace('/', '\\')
 
 dowloaded_pic_name = 'world.jpg'
@@ -52,7 +60,7 @@ cities_data = [
           'fuso' : 8,
           'tz' : "Asia/Singapore",
           'location_pixels' : [440, 1217],
-          'tz_location_pixels' : [440, 1217],
+          'tz_location_pixels' : [460, 1217],
           'active': True
         }
 ]
@@ -73,7 +81,7 @@ def wget_pic():
 
 def image_download_routine():
     errors_count = 0
-    while errors_count < 30:
+    while errors_count < qnt_max_de_erros:
         if(wget_pic()):
             print("Image downloaded with success.")
             print("Adding circles in the cities locations.")
@@ -87,33 +95,42 @@ def image_download_routine():
             print("Error during image download.")
             errors_count = errors_count + 1
             print("Error count: %d" % errors_count)
-            print("Waiting 10s to a new try...")
-            sleep(10)
+            print("Waiting "+tempo_espera_entre_erros+"s to a new try...")
+            sleep(tempo_espera_entre_erros)
+
+def salve_image_in_log(time_str):
+    print("****LOGGING IMAGE FILE: " + time_str + "****")
+    source_file = wallpapers_folder+wallpaper_pic_name
+    copied_file = wallpapers_folder+log_folder+time_str+".jpg"
+    if os.name == 'nt':
+        os.system('copy ' + source_file + ' ' +  copied_file);
+    else:
+        os.system('cp ' + source_file + ' ' +  copied_file);
 
 def add_circles(radius_px=6, width_px=1):
-	world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
-	color_background = np.zeros((radius_px*2,radius_px*2,3), dtype=world_image.dtype)
-	color_background[:,:,0] = 255
-	circle_X, circle_Y = np.ogrid[0:radius_px*2, 0:radius_px*2]
-	circle_out_mask = (circle_X - radius_px) ** 2 + (circle_Y - radius_px) ** 2 < radius_px**2
-	circle_in_mask = (circle_X - radius_px) ** 2 + (circle_Y - radius_px) ** 2 > (radius_px-width_px)**2
-	circle_mask = circle_in_mask * circle_out_mask
+    world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
+    color_background = np.zeros((radius_px*2,radius_px*2,3), dtype=world_image.dtype)
+    color_background[:,:,0] = 255
+    circle_X, circle_Y = np.ogrid[0:radius_px*2, 0:radius_px*2]
+    circle_out_mask = (circle_X - radius_px) ** 2 + (circle_Y - radius_px) ** 2 < radius_px**2
+    circle_in_mask = (circle_X - radius_px) ** 2 + (circle_Y - radius_px) ** 2 > (radius_px-width_px)**2
+    circle_mask = circle_in_mask * circle_out_mask
 
-	for city in cities_data:
-	    ## Determinando o retangulo onde estarão os marcadores
-	    x = city['location_pixels'][0]
-	    y = city['location_pixels'][1]
-	    x_start = x - radius_px
-	    y_start = y - radius_px
-	    x_end = x_start + radius_px*2
-	    y_end = y_start + radius_px*2
+    for city in cities_data:
+        ## Determinando o retangulo onde estarão os marcadores
+        x = city['location_pixels'][0]
+        y = city['location_pixels'][1]
+        x_start = x - radius_px
+        y_start = y - radius_px
+        x_end = x_start + radius_px*2
+        y_end = y_start + radius_px*2
 
-	    ## colocando o marcador
-	    piece_of_world = world_image[x_start:x_end,y_start:y_end] # seleciona uma peça
-	    piece_of_world[circle_mask] = color_background[circle_mask] # coloca o marcador nela
-	    world_image[x_start:x_end,y_start:y_end] = piece_of_world # devolve para o todo
+        ## colocando o marcador
+        piece_of_world = world_image[x_start:x_end,y_start:y_end] # seleciona uma peça
+        piece_of_world[circle_mask] = color_background[circle_mask] # coloca o marcador nela
+        world_image[x_start:x_end,y_start:y_end] = piece_of_world # devolve para o todo
 
-	misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+    misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
 
 def add_hours(font_size=18):
     img = Image.open(wallpapers_folder+dowloaded_pic_name)
@@ -126,7 +143,7 @@ def add_hours(font_size=18):
             x = city['tz_location_pixels'][0]
             y = city['tz_location_pixels'][1]
             tz = pytz.timezone(city['tz'])
-            text = str(datetime.now(tz=tz).hour) + " hrs"
+            text = str(datetime.now(tz=tz).hour) + ":" + str(datetime.now(tz=tz).minute)
             draw.text((y, x), text,(255,0,0),font=font)
 
     #plt.imshow(img)
@@ -138,26 +155,30 @@ def commit_changes():
     if os.name == 'nt':
         ctypes.windll.user32.SystemParametersInfoW(20, 0, wallpapers_folder+wallpaper_pic_name, 3)
 
-def main_loop():
-    minute_now = datetime.now().second
-    if minute_now > 5 and minute_now <= 11: # 6 min tolerance
-        msg = "Sincronizado - " + str(datetime.now()) + "."
-        print('*'*len(msg))
-        print(msg)
-        print('*'*len(msg))
-        image_download_routine()
+def create_gif():
+    #https://stackoverflow.com/questions/753190/programmatically-generate-video-or-animated-gif-in-python
+    pass
 
-        if minute_now < 9:
-            print("Wainting 61 minutes")
-            sleep(60*61)
-        else:
-            print("Wainting 59 minutes")
-            sleep(60*59)
+def calcular_espera(minuto_agora, minuto_referencia):
+    espera = 0
+    if minuto_agora < minuto_referencia:
+        espera = minuto_referencia - minuto_agora
     else:
-        print("Não Sincronizado - " + str(datetime.now()) + ".")
-        print("Wainting 5 minutes")
-        sleep(60*5)
+        espera = (60 - minuto_agora) + minuto_referencia
+    return espera
 
+def main_loop():
+    time_now = datetime.now()
+    minute_now = time_now.minute
+
+    espera_para_sincronizar = min([calcular_espera(minute_now, minuto_sinc) for minuto_sinc in horarios_para_sincronizar])
+    print("Wainting "+str(espera_para_sincronizar)+" minutes until "+str(datetime.now() + timedelta(minutes=espera_para_sincronizar))+".")
+    sleep(60*espera_para_sincronizar)
+
+    print("Sincronizando - " + str(datetime.now()) + ".")
+    image_download_routine()
+    salve_image_in_log(str(time_now).split('.')[0].replace(':','-').replace(' ', '_'))
+    
 def main():
     print(header_msg)
     print("First run...")

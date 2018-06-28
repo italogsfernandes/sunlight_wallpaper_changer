@@ -1,10 +1,7 @@
 [Desktop Entry]
 Type=Application
-Exec=sleep 20; python /home/italo/Images/Wallpapers/py_wallpaper_changer.py
+Exec=python /home/italo/Documents/GitHub/sunlight_wallpaper_changer/py_wallpaper_changer.py
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
-Name[fr_FR]=autostarter
 Name=wallpaper changer
-Comment[fr_FR]=
-Comment=
