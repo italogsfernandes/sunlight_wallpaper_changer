@@ -143,7 +143,7 @@ def add_hours(font_size=18):
             x = city['tz_location_pixels'][0]
             y = city['tz_location_pixels'][1]
             tz = pytz.timezone(city['tz'])
-            text = str(datetime.now(tz=tz).hour) + ":" + str(datetime.now(tz=tz).minute)
+            text = datetime.now(tz=tz).strftime('%H:%M')
             draw.text((y, x), text,(255,0,0),font=font)
 
     #plt.imshow(img)
