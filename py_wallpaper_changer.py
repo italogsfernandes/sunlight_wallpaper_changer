@@ -176,7 +176,7 @@ moscou = city('Moscou', 55.7558, 37.6173)
 moscou.set_tz_loc_offset(-25,-21)
 moscou.name_active = False
 
-cities = [uberlandia, lyon, singapura, samara, moscou]
+cities = [uberlandia, lyon, singapura, moscou]
 
 for city in cities:
     print(city)
@@ -250,7 +250,7 @@ def image_download_routine():
             add_circles()
             print("Add hours next to cities.")
             add_hours()
-            where_is_neymar()
+            #where_is_neymar()
             print("Renaming file.")
             commit_changes()
             break
