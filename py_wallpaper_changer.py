@@ -170,13 +170,21 @@ singapura = city('Singapura', latitude=1.28333, longitude=103.85)
 
 samara = city('Samara', 53.20007, 50.15)
 samara.set_tz_loc_offset(-10,10)
-samara.name_active = True
+#samara.name_active = True
+
+kazan = city('Kazan', 55.78874, 49.12214)
+kazan.set_tz_loc_offset(-10,10)
+kazan.name_active = True
+kazan.tz_active = True
 
 moscou = city('Moscou', 55.7558, 37.6173)
 moscou.set_tz_loc_offset(-25,-21)
 moscou.name_active = False
 
-cities = [uberlandia, lyon, singapura, moscou]
+bamberg = city('Bamberg', 49.8917, 10.8917)
+
+#cities = [uberlandia, lyon, singapura, moscou, kazan, samara, bamberg]
+cities = [uberlandia, lyon, singapura]
 
 for city in cities:
     print(city)
@@ -196,7 +204,7 @@ Níjni Novgorod
 rgb2gray = lambda x: np.dot(x[...,:3], [0.299, 0.587, 0.114])
 
 def where_is_neymar():
-    city = samara
+    city = kazan
     world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
     pin_image = misc.imread(wallpapers_folder+'pin_locator_files/neymar.jpg')
     pin_image_gray = rgb2gray(pin_image)
