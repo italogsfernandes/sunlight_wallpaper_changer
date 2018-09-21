@@ -184,7 +184,7 @@ moscou.name_active = False
 bamberg = city('Bamberg', 49.8917, 10.8917)
 
 #cities = [uberlandia, lyon, singapura, moscou, kazan, samara, bamberg]
-cities = [uberlandia, lyon, singapura]
+cities = [uberlandia, lyon]
 
 for city in cities:
     print(city)
@@ -281,9 +281,9 @@ def salve_image_in_log(time_str):
 def add_circles(radius_px=6, width_px=2):
     world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
     color_background = np.zeros((radius_px*2,radius_px*2,3), dtype=world_image.dtype)
-    color_background[:,:,0] = 0#255
-    color_background[:,:,1] = 255
-    color_background[:,:,2] = 255
+    color_background[:,:,0] = 255
+    color_background[:,:,1] = 0#255
+    color_background[:,:,2] = 0#255
     circle_X, circle_Y = np.ogrid[0:radius_px*2, 0:radius_px*2]
     circle_out_mask = (circle_X - radius_px) ** 2 + (circle_Y - radius_px) ** 2 < radius_px**2
     circle_in_mask = (circle_X - radius_px) ** 2 + (circle_Y - radius_px) ** 2 > (radius_px-width_px)**2
@@ -322,7 +322,7 @@ def add_hours(font_size=18):
                 tz = pytz.timezone(city.tz_str)
                 text += datetime.now(tz=tz).strftime('%H:%M')
 
-            draw.text((y, x), text,(0,255,255),font=font)
+            draw.text((y, x), text,(255,0,0),font=font)
 
     #plt.imshow(img)
     img.save(wallpapers_folder+dowloaded_pic_name)
@@ -355,7 +355,7 @@ def main_loop():
 
     print("Sincronizando - " + str(datetime.now()) + ".")
     image_download_routine()
-    salve_image_in_log(str(time_now).split('.')[0].replace(':','-').replace(' ', '_'))
+    #salve_image_in_log(str(time_now).split('.')[0].replace(':','-').replace(' ', '_'))
 
 def main():
     print(header_msg)
