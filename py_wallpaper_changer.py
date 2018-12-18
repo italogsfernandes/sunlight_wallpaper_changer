@@ -183,6 +183,10 @@ moscou.name_active = False
 
 bamberg = city('Bamberg', 49.8917, 10.8917)
 
+#valognes
+theotim = city('Theotim', 49.5167, -1.4667)
+theotim.name_active = True
+theotim.tz_active = False
 #cities = [uberlandia, lyon, singapura, moscou, kazan, samara, bamberg]
 cities = [uberlandia, lyon]
 
