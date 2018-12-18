@@ -238,6 +238,67 @@ def divided_by_24():
 
     misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
 
+def divided_by_24_and_colored():
+    city = lyon;
+    world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
+    ## colocando o marcador
+    city_long_px = calcular_relacao_long_pixel(city.longitude)
+
+    x = city.location_pixels[0]
+    x_start = x - 10
+    x_end = x + 10
+
+    longs_before = list(np.arange(city.longitude,-180,-15))[::-1]
+    longs_afer = list(np.arange(city.longitude,180,15))
+    list_longs = longs_before + longs_afer
+    list_longs.remove(city.longitude)
+    #list_longs.remove(city.longitude)
+
+    for n in list_longs:
+        city_long_px = calcular_relacao_long_pixel(n)
+        y = city_long_px
+        y_start = y - 1
+        y_end = y + 1
+
+        world_image[x_start:x_end,y_start:y_end, 0] = 255
+        world_image[x_start:x_end,y_start:y_end, 1] = 0
+        world_image[x_start:x_end,y_start:y_end, 2] = 0
+
+    #read_active_hours()
+
+    tz = pytz.timezone(lyon.tz_str)
+    dt_obj_now = datetime.now(tz=tz).strftime('%d/%m/%Y %H')
+    new_minute = (datetime.now(tz=tz).minute // 30)*30
+
+    datetime_object = datetime.strptime("%s:%d" % (dt_obj_now,new_minute), '%d/%m/%Y %H:%M')
+    datetime_object = datetime_object.replace(tzinfo=tz)
+
+    print("*"*50)
+    print(datetime_object)
+    print("*"*50)
+    print(list_longs)
+    print(list_longs.index(city.longitude))
+
+    for dt_obj in list_of_active_hours:
+        td = (datetime_object - dt_obj)
+        hours = td.seconds / 3600
+        print("diferenca_horaria: %.2f" % hours)
+
+    misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+
+def convert_hour_to_long(hour_to_convert):
+    city_long = lyon.longitude
+    diferenca = hour_now - hour_to_convert
+    hour_now = 0
+    if hour_to_convert == hour_now:
+        return city_long
+
+    if hour_to_convert > hora_minima and hour_to_convert < hour_now:
+        return city_long - 15*diferenca
+
+
+    return 0
+
 def where_is_neymar():
     city = kazan
     world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
@@ -285,6 +346,9 @@ def wget_pic():
         return response_ok
 
 def read_active_hours():
+    for dt_obj in list_of_active_hours:
+        list_of_active_hours.remove(dt_obj)
+
     tz = pytz.timezone(lyon.tz_str)
     with open(wallpapers_folder+'last_active_hours.txt','r') as my_file:
         print("reading active hours")
@@ -295,38 +359,46 @@ def read_active_hours():
             datetime_object = datetime.strptime(file_line, '%d/%m/%Y %H:%M')
             datetime_object = datetime_object.replace(tzinfo=tz)
             list_of_active_hours.append(datetime_object)
-
             file_line = my_file.readline()
             file_line = file_line[:-1]
 
-def clean_list_of_active_hours(dt_obj_now):
+    print("dados de %d horas ativas lidos" % len(list_of_active_hours))
+
+def clear_list_of_active_hours(dt_obj_now):
     for dt_obj in list_of_active_hours:
         td = (dt_obj_now - dt_obj)
         days, hours, minutes = td.days, td.seconds // 3600, td.seconds % 3600 / 60.0
         if days >= 1:
+            print("Days >1 -> removing %s" % dt_obj.strftime('%d/%m/%Y %H:%M'))
             list_of_active_hours.remove(dt_obj)
         elif dt_obj.hour == dt_obj_now.hour:
             if dt_obj.minute < 30 and dt_obj_now.minute < 30:
                 # ja existe uma entrada correspondente
+                print("minute<30 ja existe -> removing %s" % dt_obj.strftime('%d/%m/%Y %H:%M'))
                 list_of_active_hours.remove(dt_obj)
-            elif dt_obj.minute > 30 and dt_obj_now.minute > 30:
+            elif dt_obj.minute >= 30 and dt_obj_now.minute >= 30:
                 # ja existe uma entrada correspondente
+                print("minute>30 ja existe -> removing %s" % dt_obj.strftime('%d/%m/%Y %H:%M'))
                 list_of_active_hours.remove(dt_obj)
 
 def save_active_hour():
     tz = pytz.timezone(lyon.tz_str)
+    print("******len horas_ativas= %d" % len(list_of_active_hours))
     read_active_hours()
+    print("******len horas_ativas= %d" % len(list_of_active_hours))
 
     dt_obj_now = datetime.now(tz=tz)
 
-    clean_list_of_active_hours(dt_obj_now)
+    clear_list_of_active_hours(dt_obj_now)
+    print("******len horas_ativas= %d" % len(list_of_active_hours))
 
     list_of_active_hours.append(dt_obj_now)
+    print("******len horas_ativas= %d" % len(list_of_active_hours))
 
     with open(wallpapers_folder+'last_active_hours.txt','w+') as my_file:
-        print("adding lines to file")
-        for hour in list_of_active_hours:
-            my_file.write(hour.strftime('%d/%m/%Y %H:%M')+"\n")
+        print("adding %d lines to file" % len(list_of_active_hours))
+        for dt_obj in list_of_active_hours:
+            my_file.write(dt_obj.strftime('%d/%m/%Y %H:%M')+"\n")
 
 def image_download_routine():
     errors_count = 0
@@ -340,7 +412,7 @@ def image_download_routine():
             print("saving time to last_active_hours.txt")
             save_active_hour()
             print("adding lines of 1 hour")
-            divided_by_24()
+            divided_by_24_and_colored()
             #where_is_neymar()
             print("Renaming file.")
             commit_changes()
