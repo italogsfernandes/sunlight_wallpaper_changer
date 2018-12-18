@@ -26,6 +26,7 @@ qnt_max_de_erros = 30
 tempo_espera_entre_erros = 10 # segundos
 
 horarios_para_sincronizar = [10,40]
+list_of_active_hours = []
 
 wallpapers_folder = '/home/italo/Images/Wallpapers/'
 log_folder = 'log/'
@@ -207,6 +208,36 @@ Níjni Novgorod
 
 rgb2gray = lambda x: np.dot(x[...,:3], [0.299, 0.587, 0.114])
 
+def divided_by_24():
+    city = lyon;
+    world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
+    ## colocando o marcador
+    city_long_px = calcular_relacao_long_pixel(city.longitude)
+
+    x = city.location_pixels[0]
+    x_start = x - 10
+    x_end = x + 10
+
+    print(city.longitude)
+    longs_before = list(np.arange(city.longitude,-180,-15))
+    longs_afer = list(np.arange(city.longitude,180,15))
+    list_longs = longs_before + longs_afer
+    list_longs.remove(city.longitude)
+    list_longs.remove(city.longitude)
+    print(list_longs)
+    for n in list_longs:
+        city_long_px = calcular_relacao_long_pixel(n)
+        y = city_long_px
+        y_start = y - 1
+        y_end = y + 1
+
+        world_image[x_start:x_end,y_start:y_end, 0] = 255
+        world_image[x_start:x_end,y_start:y_end, 1] = 0
+        world_image[x_start:x_end,y_start:y_end, 2] = 0
+
+
+    misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+
 def where_is_neymar():
     city = kazan
     world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
@@ -253,6 +284,50 @@ def wget_pic():
             handle.write(block)
         return response_ok
 
+def read_active_hours():
+    tz = pytz.timezone(lyon.tz_str)
+    with open(wallpapers_folder+'last_active_hours.txt','r') as my_file:
+        print("reading active hours")
+        file_line = my_file.readline()
+        file_line = file_line[:-1]
+        while len(file_line) > 5:
+            #print("file line: " + file_line)
+            datetime_object = datetime.strptime(file_line, '%d/%m/%Y %H:%M')
+            datetime_object = datetime_object.replace(tzinfo=tz)
+            list_of_active_hours.append(datetime_object)
+
+            file_line = my_file.readline()
+            file_line = file_line[:-1]
+
+def clean_list_of_active_hours(dt_obj_now):
+    for dt_obj in list_of_active_hours:
+        td = (dt_obj_now - dt_obj)
+        days, hours, minutes = td.days, td.seconds // 3600, td.seconds % 3600 / 60.0
+        if days >= 1:
+            list_of_active_hours.remove(dt_obj)
+        elif dt_obj.hour == dt_obj_now.hour:
+            if dt_obj.minute < 30 and dt_obj_now.minute < 30:
+                # ja existe uma entrada correspondente
+                list_of_active_hours.remove(dt_obj)
+            elif dt_obj.minute > 30 and dt_obj_now.minute > 30:
+                # ja existe uma entrada correspondente
+                list_of_active_hours.remove(dt_obj)
+
+def save_active_hour():
+    tz = pytz.timezone(lyon.tz_str)
+    read_active_hours()
+
+    dt_obj_now = datetime.now(tz=tz)
+
+    clean_list_of_active_hours(dt_obj_now)
+
+    list_of_active_hours.append(dt_obj_now)
+
+    with open(wallpapers_folder+'last_active_hours.txt','w+') as my_file:
+        print("adding lines to file")
+        for hour in list_of_active_hours:
+            my_file.write(hour.strftime('%d/%m/%Y %H:%M')+"\n")
+
 def image_download_routine():
     errors_count = 0
     while errors_count < qnt_max_de_erros:
@@ -262,6 +337,10 @@ def image_download_routine():
             add_circles()
             print("Add hours next to cities.")
             add_hours()
+            print("saving time to last_active_hours.txt")
+            save_active_hour()
+            print("adding lines of 1 hour")
+            divided_by_24()
             #where_is_neymar()
             print("Renaming file.")
             commit_changes()
