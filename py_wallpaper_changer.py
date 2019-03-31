@@ -237,6 +237,9 @@ def divided_by_24():
 
 
     misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+    city, world_image, city_long_px = None, None, None
+    x, x_start, x_end = None, None, None
+    longs_before, longs_afer, list_longs = None, None, None
 
 def divided_by_24_and_colored():
     city = lyon;
@@ -285,6 +288,11 @@ def divided_by_24_and_colored():
         print("diferenca_horaria: %.2f" % hours)
 
     misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+    city, world_image, city_long_px = None, None, None
+    x, x_start, x_end = None, None, None
+    longs_before, longs_afer, list_longs = None, None, None
+    tz, dt_obj_now, new_minute = None, None, None
+    datetime_object = None
 
 def convert_hour_to_long(hour_to_convert):
     city_long = lyon.longitude
@@ -295,7 +303,6 @@ def convert_hour_to_long(hour_to_convert):
 
     if hour_to_convert > hora_minima and hour_to_convert < hour_now:
         return city_long - 15*diferenca
-
 
     return 0
 
@@ -409,10 +416,10 @@ def image_download_routine():
             add_circles()
             print("Add hours next to cities.")
             add_hours()
-            print("saving time to last_active_hours.txt")
-            save_active_hour()
+            #print("saving time to last_active_hours.txt")
+            #save_active_hour()
             print("adding lines of 1 hour")
-            divided_by_24_and_colored()
+            #divided_by_24()
             #where_is_neymar()
             print("Renaming file.")
             commit_changes()
@@ -481,6 +488,7 @@ def add_hours(font_size=18):
 
     #plt.imshow(img)
     img.save(wallpapers_folder+dowloaded_pic_name)
+    img, draw, font= None, None, None
 
 def commit_changes():
     os.remove(wallpapers_folder+wallpaper_pic_name)
