@@ -1,0 +1,2 @@
+# change background every 30 minutes
+10,40 * * * * python /home/italo/Documents/GitHub/sunlight_wallpaper_changer/py_wallpaper_changer.py

@@ -524,8 +524,8 @@ def main():
     print(header_msg)
     print("First run...")
     image_download_routine()
-    while(True):
-        main_loop()
+    # while(True):
+    #    main_loop()
 
 if __name__ == '__main__':
     #'location_pixels' : convert_lat_long_to_px(1.28333, 103.85),
