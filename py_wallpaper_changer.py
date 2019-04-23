@@ -28,7 +28,7 @@ tempo_espera_entre_erros = 10 # segundos
 horarios_para_sincronizar = [10,40]
 list_of_active_hours = []
 
-wallpapers_folder = '/home/italo/Images/Wallpapers/'
+wallpapers_folder = '/home/italo/Pictures/Wallpapers/'
 log_folder = 'log/'
 font_name = 'pin_locator_files/micross.ttf'
 
@@ -41,7 +41,6 @@ if os.name == 'nt':
 
 dowloaded_pic_name = 'world.jpg'
 wallpaper_pic_name = 'world_sunlight_Wallpaper.jpg'
-
 
 def calcular_relacao_lat_pixel(l):
     # 45.7589 esta para 517
@@ -471,7 +470,8 @@ def add_hours(font_size=18):
     img = Image.open(wallpapers_folder+dowloaded_pic_name)
     draw = ImageDraw.Draw(img)
     # font = ImageFont.truetype(<font-file>, <font-size>)
-    font = ImageFont.truetype(wallpapers_folder+font_name, font_size)
+    file_folder = os.path.dirname(os.path.abspath(__file__))
+    font = ImageFont.truetype(file_folder+"/"+font_name, font_size)
     for city in cities:
         if city.tz_active or city.name_active:
             ## Determinando o retangulo onde estarão os marcadores
