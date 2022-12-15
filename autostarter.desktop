@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Exec=python /home/italo/Documents/GitHub/sunlight_wallpaper_changer/py_wallpaper_changer.py
+Exec=/home/italo/Pictures/sunlight_wallpaper_changer/venv/bin/python3 /home/italo/Pictures/sunlight_wallpaper_changer/py_wallpaper_changer.py
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true

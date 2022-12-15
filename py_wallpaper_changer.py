@@ -12,7 +12,8 @@ import ctypes # Altering windows dlls
 from scipy import misc # Opening and clossing
 import numpy as np
 from tzwhere import tzwhere
-
+import imageio
+import math
 
 tzwhere = tzwhere.tzwhere()
 header_msg = '*'*50 + """
@@ -20,10 +21,29 @@ py wallpaper changer
 Developed by: italogsfernandes.github.io
 """ +'*'*50
 #pic_url  = "http://www.opentopia.com/images/cams/world_sunlight_map_rectangular.jpg"
-#pic_url  = "https://static.die.net/earth/rectangular/1600.jpg"
-pic_url  = "https://static.die.net/earth/mercator/1600.jpg"
+#pic_url  = "https://static.die.net/earth/rectangular/1920.jpg"
+pic_url  = "https://static.die.net/earth/mercator/1920.jpg"
 qnt_max_de_erros = 30
 tempo_espera_entre_erros = 10 # segundos
+
+
+download_pic_sh_cmd = """
+curl --location --request GET 'https://static.die.net/earth/mercator/1920.jpg' \
+--header 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:108.0) Gecko/20100101 Firefox/108.0' \
+--header 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' \
+--header 'Accept-Language: en-US,en;q=0.5' \
+--header 'Accept-Encoding: gzip, deflate, br' \
+--header 'DNT: 1' \
+--header 'Connection: keep-alive' \
+--header 'Cookie: cf_chl_2=202ac6426f94865; cf_clearance=mSDBuI9T.nqjUYVzQecmokzGmTqv.6_PXMsutzds6rQ-1671093277-0-150; u=0ZfsEmOa3B40aw19Axu5Ag==' \
+--header 'Upgrade-Insecure-Requests: 1' \
+--header 'Sec-Fetch-Dest: document' \
+--header 'Sec-Fetch-Mode: navigate' \
+--header 'Sec-Fetch-Site: cross-site' \
+--header 'Sec-GPC: 1' \
+--header 'Pragma: no-cache' \
+--header 'Cache-Control: no-cache' > /home/italo/Pictures/Wallpapers/world.jpg
+"""
 
 horarios_para_sincronizar = [10,40]
 list_of_active_hours = []
@@ -65,11 +85,14 @@ def calcular_relacao_lat_pixel(l):
     #l = 71.256 # alaska
     #l = -74
     #R = 134
-    #R = 1600 / (2*np.pi)
+    #R = 1920 / (2*np.pi)
     #h = R*np.tan(th)
     #px = 880
     #px = 517 - ((517 - 245) * (45.7589 + l) / (45.7589 - (-18.9113)))
-    R = 221
+    # R = 1920 / (2*math.pi)
+    # R = 1600 / (2*math.pi)
+    R = 1388.5839528866886 / (2*math.pi)
+    # R = 221
     th = np.radians(l)
     h = 0.99*R*np.log(np.tan((np.pi/4)+th/2))
     px = 443.5 - h
@@ -110,16 +133,6 @@ cities_data = [
           'location_pixels' : [245, 769],
           'tz_location_pixels' : [262, 770],
           'active': True
-        },
-        {
-          'name' : 'Singapura',
-          'fuso' : 8,
-          'tz' : "Asia/Singapore",
-          'Latitude' : 1.28333,
-          'Longitude': 103.85,
-          'location_pixels' : [440, 1217],
-          'tz_location_pixels' : [460, 1217],
-          'active': True
         }
 ]
 
@@ -143,7 +156,11 @@ class city:
         return timezone_str
 
     def get_location_from_lat_long(self, lat, long):
-        R = 221
+        # R = 221
+        # R = 1920 / (2*math.pi)
+        # R = 1600 / (2*math.pi)
+        R = 1388.5839528866886 / (2*math.pi)
+        # R = 221
         th = np.radians(lat)
         h = 0.99*R*np.log(np.tan((np.pi/4)+th/2))
         px = 443.5 - h
@@ -188,7 +205,13 @@ theotim = city('Theotim', 49.5167, -1.4667)
 theotim.name_active = True
 theotim.tz_active = False
 #cities = [uberlandia, lyon, singapura, moscou, kazan, samara, bamberg]
-cities = [uberlandia, lyon]
+
+sao_paulo = city('São Paulo', latitude=-23.533773,longitude=-46.625290)
+new_york = city('New York', latitude=40.730610,longitude=-73.935242)
+paris = city('Paris', latitude=48.864716,longitude=2.349014)
+sao_luis = city("São Luís",latitude=-2.531916,longitude=-44.2742199)
+
+cities = [sao_paulo, new_york, paris]
 
 for city in cities:
     print(city)
@@ -209,7 +232,7 @@ rgb2gray = lambda x: np.dot(x[...,:3], [0.299, 0.587, 0.114])
 
 def divided_by_24():
     city = lyon;
-    world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
+    world_image = imageio.imread(wallpapers_folder+dowloaded_pic_name)
     ## colocando o marcador
     city_long_px = calcular_relacao_long_pixel(city.longitude)
 
@@ -235,14 +258,14 @@ def divided_by_24():
         world_image[x_start:x_end,y_start:y_end, 2] = 0
 
 
-    misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+    imageio.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
     city, world_image, city_long_px = None, None, None
     x, x_start, x_end = None, None, None
     longs_before, longs_afer, list_longs = None, None, None
 
 def divided_by_24_and_colored():
     city = lyon;
-    world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
+    world_image = imageio.imread(wallpapers_folder+dowloaded_pic_name)
     ## colocando o marcador
     city_long_px = calcular_relacao_long_pixel(city.longitude)
 
@@ -286,7 +309,7 @@ def divided_by_24_and_colored():
         hours = td.seconds / 3600
         print("diferenca_horaria: %.2f" % hours)
 
-    misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+    imageio.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
     city, world_image, city_long_px = None, None, None
     x, x_start, x_end = None, None, None
     longs_before, longs_afer, list_longs = None, None, None
@@ -307,8 +330,8 @@ def convert_hour_to_long(hour_to_convert):
 
 def where_is_neymar():
     city = kazan
-    world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
-    pin_image = misc.imread(wallpapers_folder+'pin_locator_files/neymar.jpg')
+    world_image = imageio.imread(wallpapers_folder+dowloaded_pic_name)
+    pin_image = imageio.imread(wallpapers_folder+'pin_locator_files/neymar.jpg')
     pin_image_gray = rgb2gray(pin_image)
     pin_image_mask = pin_image_gray < 230
     x = city.location_pixels[0]
@@ -322,10 +345,10 @@ def where_is_neymar():
     piece_of_world[pin_image_mask] = pin_image[pin_image_mask] # coloca o marcador nela
     world_image[x_start:x_end,y_start:y_end] = piece_of_world # devolve para o todo
 
-    misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+    imageio.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
 
 def add_lat_and_log(equator=True, green=True):
-    world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
+    world_image = imageio.imread(wallpapers_folder+dowloaded_pic_name)
     equator_px = calcular_relacao_lat_pixel(0)
     green_px = calcular_relacao_long_pixel(0)
     world_image[:,green_px, 0] = 255
@@ -334,9 +357,12 @@ def add_lat_and_log(equator=True, green=True):
     world_image[equator_px,:, 0] = 255
     world_image[equator_px,:, 1] = 255
     world_image[equator_px,:, 2] = 255
-    misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+    imageio.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
 
 def wget_pic():
+    # download_pic_sh_cmd
+    os.system(download_pic_sh_cmd)
+    return True
     response_ok = True
     with open(wallpapers_folder + dowloaded_pic_name, 'wb') as handle:
         print(datetime.now())
@@ -345,6 +371,9 @@ def wget_pic():
         if not response.ok:
             response_ok = False
             print(response)
+            print("#"*80)
+            print(response.content.decode('utf-8'))
+            print("#"*80)
         for block in response.iter_content(1024):
             if not block:
                 break
@@ -427,7 +456,7 @@ def image_download_routine():
             print("Error during image download.")
             errors_count = errors_count + 1
             print("Error count: %d" % errors_count)
-            print("Waiting "+tempo_espera_entre_erros+"s to a new try...")
+            print("Waiting "+str(tempo_espera_entre_erros)+"s to a new try...")
             sleep(tempo_espera_entre_erros)
 
 def salve_image_in_log(time_str):
@@ -440,7 +469,7 @@ def salve_image_in_log(time_str):
         os.system('cp ' + source_file + ' ' +  copied_file);
 
 def add_circles(radius_px=6, width_px=2):
-    world_image = misc.imread(wallpapers_folder+dowloaded_pic_name)
+    world_image = imageio.imread(wallpapers_folder+dowloaded_pic_name)
     color_background = np.zeros((radius_px*2,radius_px*2,3), dtype=world_image.dtype)
     color_background[:,:,0] = 255
     color_background[:,:,1] = 0#255
@@ -464,7 +493,7 @@ def add_circles(radius_px=6, width_px=2):
         piece_of_world[circle_mask] = color_background[circle_mask] # coloca o marcador nela
         world_image[x_start:x_end,y_start:y_end] = piece_of_world # devolve para o todo
 
-    misc.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
+    imageio.imsave(wallpapers_folder+dowloaded_pic_name, world_image) # uses the Image module (PIL)
 
 def add_hours(font_size=18):
     img = Image.open(wallpapers_folder+dowloaded_pic_name)

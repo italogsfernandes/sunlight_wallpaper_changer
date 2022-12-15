@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import misc # Opening and clossing
+import imageio
 #------------------------------------------------------------------------------
 ## Opening and writing to image files (2.6.1.)
 # ------------------------------------------------------------------------------
@@ -12,7 +13,7 @@ def save_image(input_image,name=None,extension='.png',folder=None):
     complete_file_name = name + extension
     if not folder is None:
         complete_file_name = folder + complete_file_name
-    misc.imsave(complete_file_name, input_image) # uses the Image module (PIL)
+    imageio.imsave(complete_file_name, input_image) # uses the Image module (PIL)
 
 def read_image(name,extension='.png',folder=None):
     """
@@ -36,7 +37,7 @@ def read_image(name,extension='.png',folder=None):
     if not folder is None:
        complete_file_name = folder + complete_file_name
 
-    output_image = misc.imread(complete_file_name)
+    output_image = imageio.imread(complete_file_name)
     return output_image
 
 
@@ -61,9 +62,9 @@ cities_data = [
         }
 ]
 ## Abrindo as imagens
-world_image = read_image('/home/italo/Images/Wallpapers/world','.jpg')
+world_image = read_image('/home/italo/Pictures/sunlight_wallpaper_changer/world','.jpg')
 #world_image = read_image('brasil_test_image','.jpg')
-pin_image = read_image('/home/italo/Images/Wallpapers/pin_locator_files/pin_icon(15x20)','.jpg')
+pin_image = read_image('/home/italo/Pictures/sunlight_wallpaper_changer/pin_locator_files/pin_icon(15x20)','.jpg')
 rgb2gray = lambda x: np.dot(x[...,:3], [0.299, 0.587, 0.114])
 pin_image_gray = rgb2gray(pin_image)
 
@@ -97,7 +98,7 @@ for city in cities_data:
 #plt.imshow(world_image)
 
 ## E por fim, salvar o resultado
-save_image(world_image, '/home/italo/Images/Wallpapers/world_pinned', '.jpg')
+save_image(world_image, '/home/italo/Pictures/sunlight_wallpaper_changer/world_pinned', '.jpg')
 
 ## adicionando texto
 from PIL import Image
@@ -106,10 +107,10 @@ from PIL import ImageDraw
 from datetime import datetime
 import pytz
 
-img = Image.open("/home/italo/Images/Wallpapers/world_pinned.jpg")
+img = Image.open("/home/italo/Pictures/sunlight_wallpaper_changer/world_pinned.jpg")
 draw = ImageDraw.Draw(img)
 # font = ImageFont.truetype(<font-file>, <font-size>)
-font = ImageFont.truetype("/home/italo/Images/Wallpapers/pin_locator_files/micross.ttf", 12)
+font = ImageFont.truetype("/home/italo/Pictures/sunlight_wallpaper_changer/pin_locator_files/micross.ttf", 12)
 for city in cities_data:
     ## Determinando o retangulo onde estarão os marcadores
     x = city['location_pixels'][0]
@@ -119,4 +120,4 @@ for city in cities_data:
     draw.text((y, x), text,(255,0,0),font=font)
 
 #plt.imshow(img)
-img.save('/home/italo/Images/Wallpapers/world_time.jpg')
+img.save('/home/italo/Pictures/sunlight_wallpaper_changer/world_time.jpg')
